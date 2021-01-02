@@ -1,16 +1,19 @@
 /*
  * temp_trigger.ino
  * 
- * This project 
+ * This project is for using resistance-based tempurature sensors to control a trigger
+ * In my specific use case, this trigger turns on a driveway heater when the sensors drop below freezing
+ * 
+ * SEE THE DATASHEET OF YOUR SPECIFIC TEMPERATURE SENSOR FOR OHM CONVERSIONS
  */
 
 // Analog reading pin for temp sensor and digital write pin for the heater trigger
-int temp_sensor = A0;
+int temp_sensor_1 = A0, temp_sensor_2 = A1;
 int trigger = 2;
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(temp_sensor, INPUT);
+  pinMode(temp_sensor_1, INPUT);
+  pinMode(temp_sensor_2, INPUT);
   pinMode(trigger, OUTPUT);
 }
 
@@ -28,15 +31,13 @@ void setup() {
 bool is_freezing(int sensor) {
   float fraction = analogRead(sensor)/1023.0;
   int ohms = (22000.0/fraction) - 22000;
-  Serial.print("OHMS: ");
-  Serial.println(ohms);
   return ohms >= 27000;
 }
 
 void loop() {
 
-  // If it's below freezing, turn on the heater
-  if(is_freezing(temp_sensor)) digitalWrite(trigger, HIGH);
+  // If both sensors are below freezing, turn on the heater
+  if(is_freezing(temp_sensor_1) && is_freezing(temp_sensor_2)) digitalWrite(trigger, HIGH);
   else digitalWrite(trigger, LOW);
   
   delay(500);
